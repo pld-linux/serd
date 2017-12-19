@@ -1,12 +1,12 @@
 Summary:	Lightweight C library for RDF syntax
 Summary(pl.UTF-8):	Lekka biblioteka C do składni RDF
 Name:		serd
-Version:	0.24.0
+Version:	0.28.0
 Release:	1
 License:	ISC
 Group:		Libraries
 Source0:	http://download.drobilla.net/%{name}-%{version}.tar.bz2
-# Source0-md5:	3f7c5fb104908bb0c6f7db554836ba63
+# Source0-md5:	21480095ad8919d4716bbd1a1bfc36c9
 URL:		http://drobilla.net/software/serd/
 BuildRequires:	python
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -70,7 +70,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc AUTHORS COPYING NEWS README
+%doc AUTHORS COPYING NEWS README.md
 %attr(755,root,root) %{_bindir}/serdi
 %attr(755,root,root) %{_libdir}/libserd-0.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libserd-0.so.0
