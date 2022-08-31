@@ -1,14 +1,28 @@
+#
+# Conditional build:
+%bcond_with	apidocs	# API documentation
+
 Summary:	Lightweight C library for RDF syntax
 Summary(pl.UTF-8):	Lekka biblioteka C do składni RDF
 Name:		serd
-Version:	0.30.10
+Version:	0.30.14
 Release:	1
 License:	ISC
 Group:		Libraries
-Source0:	http://download.drobilla.net/%{name}-%{version}.tar.bz2
-# Source0-md5:	cfb84bb8bfab8b7298cd71d767fcaef8
+Source0:	http://download.drobilla.net/%{name}-%{version}.tar.xz
+# Source0-md5:	423dfab6a4f3c917d62d4b5f4f9b9b95
 URL:		http://drobilla.net/software/serd/
-BuildRequires:	python >= 2
+BuildRequires:	meson >= 0.56.0
+BuildRequires:	ninja >= 1.5
+BuildRequires:	pkgconfig
+BuildRequires:	rpmbuild(macros) >= 1.736
+BuildRequires:	tar >= 1:1.22
+BuildRequires:	xz
+%if %{with apidocs}
+BuildRequires:	doxygen
+BuildRequires:	mandoc
+BuildRequires:	sphinx-pdg >= 2
+%endif
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -48,19 +62,22 @@ Pliki nagłówkowe biblioteki serd.
 %setup -q
 
 %build
-CC="%{__cc}" \
-CFLAGS="%{rpmcflags}" \
-./waf configure \
-	--prefix=%{_prefix} \
-	--libdir=%{_libdir}
+%meson build \
+	--default-library=shared \
+	%{!?with_apidocs:-Ddocs=disabled}
 
-./waf -v
+%ninja_build -C build
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-./waf install \
-	--destdir=$RPM_BUILD_ROOT
+%ninja_install -C build
+
+%if %{without apidocs}
+# -Ddocs=disabled disables man page installation
+install -d $RPM_BUILD_ROOT%{_mandir}/man1
+cp -p doc/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
