@@ -1,27 +1,31 @@
 #
 # Conditional build:
-%bcond_with	apidocs	# API documentation
+%bcond_without	apidocs	# API documentation
 
 Summary:	Lightweight C library for RDF syntax
 Summary(pl.UTF-8):	Lekka biblioteka C do składni RDF
 Name:		serd
-Version:	0.32.2
+Version:	0.32.4
 Release:	1
 License:	ISC
 Group:		Libraries
 Source0:	http://download.drobilla.net/%{name}-%{version}.tar.xz
-# Source0-md5:	3af4135454f7d07458584520dfd3f656
+# Source0-md5:	553a9b50caa23a7c57732f83e6f80658
 URL:		http://drobilla.net/software/serd/
 BuildRequires:	meson >= 0.56.0
 BuildRequires:	ninja >= 1.5
 BuildRequires:	pkgconfig
-BuildRequires:	rpmbuild(macros) >= 1.736
+BuildRequires:	rpm-build >= 4.6
+BuildRequires:	rpmbuild(macros) >= 2.042
 BuildRequires:	tar >= 1:1.22
 BuildRequires:	xz
 %if %{with apidocs}
 BuildRequires:	doxygen
 BuildRequires:	mandoc
+BuildRequires:	python3 >= 1:3.6
+BuildRequires:	python3-sphinx_lv2_theme
 BuildRequires:	sphinx-pdg >= 2
+BuildRequires:	sphinxygen
 %endif
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -58,20 +62,34 @@ Header files for serd library.
 %description devel -l pl.UTF-8
 Pliki nagłówkowe biblioteki serd.
 
+%package apidocs
+Summary:	API documentation for serd library
+Summary(pl.UTF-8):	Dokumentacja API biblioteki serd
+Group:		Documentation
+BuildArch:	noarch
+
+%description apidocs
+API documentation for serd library.
+
+%description apidocs -l pl.UTF-8
+Dokumentacja API biblioteki serd.
+
 %prep
 %setup -q
 
 %build
-%meson build \
+%meson \
 	--default-library=shared \
-	%{!?with_apidocs:-Ddocs=disabled}
+	%{!?with_apidocs:-Ddocs=disabled} \
+	-Dman_html=disabled \
+	-Dsinglehtml=disabled
 
-%ninja_build -C build
+%meson_build
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%ninja_install -C build
+%meson_install
 
 %if %{without apidocs}
 # -Ddocs=disabled disables man page installation
@@ -98,3 +116,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libserd-0.so
 %{_includedir}/serd-0
 %{_pkgconfigdir}/serd-0.pc
+
+%if %{with apidocs}
+%files apidocs
+%defattr(644,root,root,755)
+%dir %{_docdir}/serd-0
+%{_docdir}/serd-0/html
+%endif
