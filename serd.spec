@@ -91,12 +91,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %meson_install
 
-%if %{without apidocs}
-# -Ddocs=disabled disables man page installation
-install -d $RPM_BUILD_ROOT%{_mandir}/man1
-cp -p doc/man/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
-%endif
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
